@@ -2,6 +2,9 @@
 
 -Created React App
 -Configured TailwindCSS
+-Routing
+-Header
+-Login form
 
 # Features
 
