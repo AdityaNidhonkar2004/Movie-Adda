@@ -1,33 +1,128 @@
-import React from "react";
+import React, { useRef } from "react";
 import Header from "./Header";
+import { useState } from "react";
+import checkValidateData from "../utils/validate";
+import { auth } from "../utils/firebase";
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from "firebase/auth";
 const Login = () => {
+  const [isSignInForm, setIsSignInForm] = useState(true);
+  const [errorMsg, setErrorMsg] = useState();
+  const email = useRef(null);
+  const password = useRef(null);
+  // const user = useRef(null);
+  const handleButtonClick = () => {
+    //Validate Form data
+    // console.log(email);
+    // console.log(password);
+    const msg = checkValidateData(
+      email.current.value,
+      password.current.value
+      // user.current.value
+    );
+    setErrorMsg(msg);
+    //Error has ocurred
+    if (msg) return;
+
+    if (!isSignInForm) {
+      //Sign Up logic
+      createUserWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed up
+          const user = userCredential.user;
+          console.log(user);
+          // ...
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          // ..
+          setErrorMsg(errorCode + "-" + errorMessage);
+        });
+    } else {
+      //Sign In logic
+      signInWithEmailAndPassword(
+        auth,
+        email.current.value,
+        password.current.value
+      )
+        .then((userCredential) => {
+          // Signed in
+          const user = userCredential.user;
+          // ...
+          console.log(user);
+        })
+        .catch((error) => {
+          const errorCode = error.code;
+          const errorMessage = error.message;
+          setErrorMsg(errorCode + "-" + errorMessage);
+        });
+    }
+  };
+
+  const toggleSignUpForm = () => {
+    setIsSignInForm(!isSignInForm);
+  };
+
   return (
     <div className="">
       <Header />
-      <div className="absolute bg-no-repeat backdrop-contrast-50 brightness-50 ">
+      <div className="absolute w-screen  backdrop-contrast-50 brightness-50 ">
         <img
-          className="bg"
+          className="mt-[1px] "
           src="https://wallpaper.dog/large/20526896.jpg"
           alt="bg image"
         ></img>
       </div>
-      <form className="absolute my-[160px] mx-auto right-0 left-0 h-[510px] p-12 bg-black w-4/12 text-white bg-opacity-75 rounded-md">
-        <h1 className="text-4xl  py-2 ">Sign In</h1>
+      <form
+        onSubmit={(e) => e.preventDefault()}
+        className="absolute my-[120px] mx-auto right-0 left-0 h-[510px] p-12 bg-black w-4/12 text-white bg-opacity-75 rounded-md"
+      >
+        <h1 className="text-3xl   ">{isSignInForm ? "Sign In" : "Sign Up"}</h1>
+        {/* User  */}
+        {!isSignInForm && (
+          <input
+            // ref={user}
+            type="text"
+            placeholder="Username"
+            className="p-2 my-3 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
+          ></input>
+        )}
+        {/* Email */}
         <input
+          //UseRef Hook reference passing
+          ref={email}
           type="text"
           placeholder="Email Id or Phone number"
-          className="p-2 my-6 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
+          className="p-2 my-3 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
         ></input>
+        {/* Password */}
         <input
-          className="p-2 my-6 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
+          //UseRef Hook reference passing
+          ref={password}
+          className="p-2 my-3 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
           type="password"
           placeholder="Password"
         ></input>
-        <button className="p-4 my-4 bg-red-600 w-full hover:bg-red-700 rounded-md ">
-          Sign In
+        <p className=" text-red-500">{errorMsg}</p>
+        <button
+          className="p-4 my-4 bg-red-600 w-full hover:bg-red-700 rounded-md "
+          onClick={handleButtonClick}
+        >
+          {isSignInForm ? "Sign In" : "Sign Up"}
         </button>
         <span>
-          <h3 className="p-2">New to Movie-Adda? Sign up now.</h3>
+          <h3 className="p-2 cursor-pointer " onClick={toggleSignUpForm}>
+            {isSignInForm
+              ? "New to Movie-Adda? Sign Up now."
+              : "Already Registered ? Sign In now"}
+          </h3>
           <h3 className="p-2">
             This page is protected by Google reCAPTCHA to ensure you're not a
             bot.
