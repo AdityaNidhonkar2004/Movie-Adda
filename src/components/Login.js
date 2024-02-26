@@ -6,13 +6,21 @@ import { auth } from "../utils/firebase";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  updateProfile,
 } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
+import { AVATAR, BG_IMG } from "../utils/constants";
+
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMsg, setErrorMsg] = useState();
   const email = useRef(null);
   const password = useRef(null);
-  // const user = useRef(null);
+  const navigate = useNavigate();
+  const user = useRef(null);
+  const dispatch = useDispatch();
   const handleButtonClick = () => {
     //Validate Form data
     // console.log(email);
@@ -37,7 +45,25 @@ const Login = () => {
           // Signed up
           const user = userCredential.user;
           console.log(user);
-          // ...
+          updateProfile(user, {
+            displayName: user.current.value,
+            photoURL: AVATAR,
+          })
+            .then(() => {
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL: photoURL,
+                })
+              );
+              navigate("/browse");
+            })
+            .catch((error) => {
+              setErrorMsg(error.message);
+            });
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -57,6 +83,7 @@ const Login = () => {
           const user = userCredential.user;
           // ...
           console.log(user);
+          navigate("/browse");
         })
         .catch((error) => {
           const errorCode = error.code;
@@ -74,11 +101,7 @@ const Login = () => {
     <div className="">
       <Header />
       <div className="absolute w-screen  backdrop-contrast-50 brightness-50 ">
-        <img
-          className="mt-[1px] "
-          src="https://wallpaper.dog/large/20526896.jpg"
-          alt="bg image"
-        ></img>
+        <img className="mt-[1px] " src={BG_IMG} alt="bg image"></img>
       </div>
       <form
         onSubmit={(e) => e.preventDefault()}
@@ -88,7 +111,7 @@ const Login = () => {
         {/* User  */}
         {!isSignInForm && (
           <input
-            // ref={user}
+            ref={user}
             type="text"
             placeholder="Username"
             className="p-2 my-3 w-full bg-gray-950 border-none  rounded-md bg-opacity-75"
