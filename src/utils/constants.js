@@ -13,3 +13,13 @@ export const API_OPTIONS = {
 };
 
 export const IMG_CDN_URL = "https://image.tmdb.org/t/p/w500";
+
+export const BG_IMG_GPT_PAGE =
+  "https://external-preview.redd.it/the-netflix-geeked-week-playlist-has-shadow-and-bone-above-v0-YxpBQkOb3InuUx_HdlnscvsJ_4ykpjFLtvJ7ePWhJSU.jpg?auto=webp&s=a90ff43156bc84bfcceb54401d0dc93feed209bc";
+
+export const SUPPORTED_LANGUAGE = [
+  { identifier: "english", name: "English" },
+  { identifier: "hindi", name: "Hindi" },
+  { identifier: "telugu", name: "Telugu" },
+  { identifier: "tamil", name: "Tamil" },
+];
